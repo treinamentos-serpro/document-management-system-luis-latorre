@@ -104,6 +104,11 @@ test('contratos HTTP dos documentos', async (context) => {
     const before = (await fs.readdir(storageDirectory)).sort();
     const noFile = await request('/upload', { method: 'POST', body: new FormData() });
     assert.strictEqual(noFile.status, 400);
+    const extraField = new FormData();
+    extraField.append('file', new Blob(['pdf'], { type: 'application/pdf' }), 'extra.pdf');
+    extraField.append('metadata', 'unexpected');
+    const extraFieldResponse = await request('/upload', { method: 'POST', body: extraField });
+    assert.strictEqual(extraFieldResponse.status, 400);
     const empty = await upload('');
     assert.strictEqual(empty.status, 400);
     const unsupported = await upload('texto', 'documento.txt', 'text/plain');
@@ -173,5 +178,9 @@ test('contratos HTTP dos documentos', async (context) => {
     const response = await request(`/documents/${document.id}/download`);
     assert.strictEqual(response.status, 404);
     assert.strictEqual(typeof (await response.json()).error.message, 'string');
+  });
+
+  await context.test('repository rejeita nomes internos que escapam do storage', async () => {
+    await assert.rejects(repository.locateFile('../README.md'), { code: 'INVALID_STORED_NAME' });
   });
 });

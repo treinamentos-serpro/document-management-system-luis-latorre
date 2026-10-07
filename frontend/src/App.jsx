@@ -28,8 +28,7 @@ export default function App() {
     return () => controller.abort();
   }, [revision]);
 
-  function handleUploaded(document) {
-    setDocuments((current) => [...current.filter((item) => item.id !== document.id), document]);
+  function handleUploaded() {
     setRevision((current) => current + 1);
   }
 

@@ -35,7 +35,16 @@ function findById(id) {
 }
 
 function getFilePath(storedName) {
-  return path.join(storageDirectory, storedName);
+  if (typeof storedName !== 'string' || !storedName || path.basename(storedName) !== storedName) {
+    throw Object.assign(new Error('Nome interno de arquivo invalido.'), { code: 'INVALID_STORED_NAME' });
+  }
+
+  const filePath = path.resolve(storageDirectory, storedName);
+  const relativePath = path.relative(storageDirectory, filePath);
+  if (!relativePath || relativePath === '..' || relativePath.startsWith(`..${path.sep}`) || path.isAbsolute(relativePath)) {
+    throw Object.assign(new Error('Nome interno de arquivo invalido.'), { code: 'INVALID_STORED_NAME' });
+  }
+  return filePath;
 }
 
 async function removeFile(storedName) {

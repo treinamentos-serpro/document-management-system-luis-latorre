@@ -3,7 +3,16 @@ const service = require('../services/documentService');
 
 const receiveFile = multer({
   storage: service.createUploadStorage(),
-  limits: { fileSize: service.maxFileSize + 1, files: 1 },
+  limits: {
+    fileSize: service.maxFileSize + 1,
+    files: 1,
+    fields: 0,
+    // O Busboy sinaliza partsLimit ao atingir a contagem configurada.
+    parts: 2,
+    fieldNameSize: 100,
+    fieldSize: 1024,
+    headerPairs: 100
+  },
   fileFilter(req, file, callback) {
     try {
       service.validateFileType(file);
